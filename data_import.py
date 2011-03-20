@@ -1,11 +1,18 @@
 from optparse import OptionParser
 import csv
 import manage
+from djangoappengine.settings_base import *
 
 from api.models import Team
 
+import google
+#import google.appengine.api.namespace_manager
+#google.appengine.api.namespace_manager.set_namespace('retrosheetapi')
+#print google.appengine.api.namespace_manager.get_namespace()
+
 implemented_importers = {
-  'team': 'http://www.retrosheet.org/TeamIDs.htm'
+  'team': 'http://www.retrosheet.org/TeamIDs.htm',
+  'player': 'http://www.retrosheet.org/retroID.htm'
 }
 
 parser = OptionParser()
@@ -27,7 +34,16 @@ if import_type == 'team':
     year_first_active = row[4]
     year_last_active = row[5]
     
-    team = Team(abbreviation, league, city, nickname, year_first_active, year_last_active)
+    team = Team(team_abbreviation=abbreviation, league=league, city=city, nickname=nickname, year_first_active=year_first_active, year_last_active=year_last_active)
     team.save()
 
+if import_type == 'player':
+  for row in rows:
+    last_name = row[0]
+    first_name = row[1]
+    key = row[2]
+    debut_date = row[3]
+
+    player = Player(last_name = last_name, first_name = first_name, key = key, debut_date = debut_date)
+    player.save()
 
