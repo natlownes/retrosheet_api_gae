@@ -8,4 +8,8 @@ class Team(models.Model):
   year_first_active   = models.CharField(max_length=4)
   year_last_active    = models.CharField(max_length=4)
 
-# Create your models here.
+class Player(models.Model):
+  first_name = models.CharField()
+  last_name  = models.CharField()
+  retrosheet_id = models.CharField()
+  debut_date = models.DateField()

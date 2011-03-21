@@ -1,14 +1,13 @@
 from optparse import OptionParser
 import csv
 import manage
+import time
 from djangoappengine.settings_base import *
 
 from api.models import Team
+from api.models import Player
 
 import google
-#import google.appengine.api.namespace_manager
-#google.appengine.api.namespace_manager.set_namespace('retrosheetapi')
-#print google.appengine.api.namespace_manager.get_namespace()
 
 implemented_importers = {
   'team': 'http://www.retrosheet.org/TeamIDs.htm',
@@ -42,8 +41,11 @@ if import_type == 'player':
     last_name = row[0]
     first_name = row[1]
     key = row[2]
-    debut_date = row[3]
+    print row[3]
+    debut_date = time.strptime(row[3], "%m/%d/%Y")
+    debut_date = time.strftime("%Y-%m-%d", debut_date)
 
-    player = Player(last_name = last_name, first_name = first_name, key = key, debut_date = debut_date)
+    # todo:  sup with 1875 not being a valid year?
+    player = Player(last_name = last_name, first_name = first_name, retrosheet_id = key, debut_date = debut_date)
     player.save()
 
