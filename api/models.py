@@ -13,3 +13,14 @@ class Player(models.Model):
   last_name  = models.CharField()
   retrosheet_id = models.CharField()
   debut_date = models.DateField()
+  #debut_year = models.IntegerField()
+  #debut_month = models.IntegerField()
+  #debut_day = models.IntegerField()
+
+  @classmethod
+  def destroy_all(cls):
+    # I know there's gotta be a better way to do this
+    for player in Player.objects.all():
+      player.delete()
+
+
