@@ -8,12 +8,15 @@ from djangoappengine.settings_base import *
 from api.models.player import Player
 from api.models.team import Team
 from api.models.game import Game
+from api.models.lineup import Lineup
+from api.models.lineup_entry import LineupEntry
 
 import google
 
 implemented_importers = {
   'team': 'http://www.retrosheet.org/TeamIDs.htm',
-  'player': 'http://www.retrosheet.org/retroID.htm'
+  'player': 'http://www.retrosheet.org/retroID.htm',
+  'gamelog': 'http://www.retrosheet.org/gamelogs/index.html'
 }
 
 parser = OptionParser()
@@ -31,6 +34,24 @@ def date_or_none(date_string, date_format="%m/%d/%Y"):
   except ValueError:
     out_date = None
   return out_date
+
+
+def split_seq(seq,size):
+  """ Split up seq in pieces of size """
+  return [seq[i:i+size] for i in range(0, len(seq), size)]
+
+def lineup_data_for(rs_array):
+  lineup_data = split_seq(rs_array, 3)
+  data = []
+  for i in range(len(lineup_data)):
+    lineup_row = lineup_data[i]
+    print lineup_row
+    rs_id = lineup_row[0]
+    player_name = lineup_row[1] # not that we'll use it
+    defensive_position = int(lineup_row[2])
+    batting_position = i + 1
+    data.append({'rs_id': rs_id, 'defensive_position': defensive_position, 'batting_position': batting_position})
+  return data
 
 rows = csv.reader(file_contents, delimiter=',')
 
@@ -64,13 +85,44 @@ if import_type == 'gamelog':
     attendance = int(row[17])
     day_of_week = row[2]
     duration_in_minutes = int(row[18])
-    game = Game(attendance = attendance, date = game_date, day_of_week = day_of_week)
+    winning_pitcher = Player.objects.filter(retrosheet_id = row[93])[0]
+    losing_pitcher = Player.objects.filter(retrosheet_id = row[95])[0]
 
+    game = Game(attendance = attendance, date = game_date, day_of_week = day_of_week, winning_pitcher = winning_pitcher, losing_pitcher = losing_pitcher)
+
+    game.save()
 
     away_team = Team.objects.filter(team_abbreviation=row[3], league=row[4])[0]
     away_team_game_number = int(row[5])
     away_team_runs_scored = int(row[9])
+    away_team_starting_pitcher = Player.objects.filter(retrosheet_id = row[101])[0]
+    away_participant = game.gameparticipant_set.create(team = away_team, game_number_for_season = away_team_game_number, team_location_status = 'away', runs_scored_count = away_team_runs_scored, starting_pitcher = away_team_starting_pitcher)
 
     home_team = Team.objects.filter(team_abbreviation=row[6], league=row[7])[0]
     home_team_game_number = int(row[8])
     home_team_runs_scored = int(row[10])
+    home_team_starting_pitcher = Player.objects.filter(retrosheet_id = row[103])[0]
+    home_participant = game.gameparticipant_set.create(team = home_team, game_number_for_season = home_team_game_number, team_location_status = 'home', runs_scored_count = home_team_runs_scored, starting_pitcher = home_team_starting_pitcher)
+
+
+
+
+    # away starting lineup
+    away_lineup = Lineup(team = away_team, date = game_date, game_participant = away_participant) 
+    away_lineup.save()
+
+    away_dicts = lineup_data_for(row[105:132])
+    for d in away_dicts:
+      player = Player.objects.filter(retrosheet_id = d['rs_id'])[0]
+      lineup_entry = LineupEntry(player = player, lineup = away_lineup, is_starter = True, batting_position = d['batting_position'], defensive_position = d['defensive_position'])
+      lineup_entry.save()
+
+    # home starting lineup
+    home_lineup = Lineup(team = home_team, date = game_date, game_participant = home_participant) 
+    home_lineup.save()
+    home_dicts = lineup_data_for(row[132:159])
+
+    for d in home_dicts:
+      player = Player.objects.filter(retrosheet_id = d['rs_id'])[0]
+      lineup_entry = LineupEntry(player = player, lineup = home_lineup, is_starter = True, batting_position = d['batting_position'], defensive_position = d['defensive_position'])
+      lineup_entry.save()
