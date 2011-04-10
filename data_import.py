@@ -5,8 +5,7 @@ import time
 import datetime
 from djangoappengine.settings_base import *
 
-from api.models import Team
-from api.models import Player
+from api.models import *
 
 import google
 
@@ -46,12 +45,10 @@ if import_type == 'player':
 
     try:
       debut_date = time.strptime(date_string, "%m/%d/%Y")
+      debut_date = datetime.date(debut_date.tm_year, debut_date.tm_mon, debut_date.tm_mday)
     except ValueError:
-      # some are blank, some have fucked up characters.  magic date!...
-      date_string = "01/01/1000"
+      debut_date = None
 
-    debut_date = time.strptime(date_string, "%m/%d/%Y")
-    debut_date = datetime.date(debut_date.tm_year, debut_date.tm_mon, debut_date.tm_mday)
     player = Player(last_name = last_name, first_name = first_name, retrosheet_id = key, debut_date = debut_date)
     
     player.save()
