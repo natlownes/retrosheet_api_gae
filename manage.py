@@ -1,5 +1,10 @@
 #!/usr/bin/env python
+import manage
+from djangoappengine.settings_base import *
 from django.core.management import execute_manager
+
+from api.models import *
+
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:
