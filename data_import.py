@@ -5,7 +5,9 @@ import time
 import datetime
 from djangoappengine.settings_base import *
 
-from api.models import *
+from api.models.player import Player
+from api.models.team import Team
+from api.models.game import Game
 
 import google
 
@@ -21,6 +23,14 @@ parser.add_option('-t', '--type', dest='retrosheet_file_type', help=('The Retros
 
 import_type = options.retrosheet_file_type
 file_contents = open(options.csv_file_path)
+
+def date_or_none(date_string, date_format="%m/%d/%Y"):
+  try:
+    out_date = time.strptime(date_string, date_format)
+    out_date = datetime.date(out_date.tm_year, out_date.tm_mon, out_date.tm_mday)
+  except ValueError:
+    out_date = None
+  return out_date
 
 rows = csv.reader(file_contents, delimiter=',')
 
@@ -43,13 +53,24 @@ if import_type == 'player':
     key = row[2]
     date_string = row[3]
 
-    try:
-      debut_date = time.strptime(date_string, "%m/%d/%Y")
-      debut_date = datetime.date(debut_date.tm_year, debut_date.tm_mon, debut_date.tm_mday)
-    except ValueError:
-      debut_date = None
+    debut_date = date_or_none(date_string)
 
     player = Player(last_name = last_name, first_name = first_name, retrosheet_id = key, debut_date = debut_date)
-    
     player.save()
 
+if import_type == 'gamelog':
+  for row in rows:
+    game_date = date_or_none(row[0], "%Y%m%d")
+    attendance = int(row[17])
+    day_of_week = row[2]
+    duration_in_minutes = int(row[18])
+    game = Game(attendance = attendance, date = game_date, day_of_week = day_of_week)
+
+
+    away_team = Team.objects.filter(team_abbreviation=row[3], league=row[4])[0]
+    away_team_game_number = int(row[5])
+    away_team_runs_scored = int(row[9])
+
+    home_team = Team.objects.filter(team_abbreviation=row[6], league=row[7])[0]
+    home_team_game_number = int(row[8])
+    home_team_runs_scored = int(row[10])

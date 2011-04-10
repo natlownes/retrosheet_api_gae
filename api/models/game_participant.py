@@ -1,4 +1,6 @@
 from django.db import models
+from api.models.game import Game
+from api.models.team import Team
 
 # a team that has participated in a game
 class GameParticipant(models.Model):
@@ -10,3 +12,4 @@ class GameParticipant(models.Model):
   team = models.ForeignKey(Team)
   game_number_for_season = models.IntegerField(null=True)
   team_location_status = models.CharField(choices=HOME_OR_AWAY_CHOICES)
+  runs_scored_count = models.IntegerField(null=True)

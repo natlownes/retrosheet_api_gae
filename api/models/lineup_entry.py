@@ -1,4 +1,5 @@
 from django.db import models
+from api.models.lineup import Lineup
 
 class LineupEntry(models.Model):
   DEFENSIVE_CHOICES = (
@@ -13,8 +14,8 @@ class LineupEntry(models.Model):
       (9, u'RF'),
       (10, u'DH')
   )
-  lineup = model.ForeignKey(Lineup)
-  is_starter = model.BooleanField()
-  batting_position = model.IntegerField()
-  defensive_position = model.IntegerField()(choices=DEFENSIVE_CHOICES)
+  lineup = models.ForeignKey(Lineup)
+  is_starter = models.BooleanField()
+  batting_position = models.IntegerField()
+  defensive_position = models.IntegerField(choices=DEFENSIVE_CHOICES)
 
