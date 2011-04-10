@@ -1,5 +1,6 @@
 from django.db import models
 from api.models.lineup import Lineup
+from api.models.player import Player
 
 class LineupEntry(models.Model):
   DEFENSIVE_CHOICES = (
@@ -15,7 +16,9 @@ class LineupEntry(models.Model):
       (10, u'DH')
   )
   lineup = models.ForeignKey(Lineup)
+  player = models.ForeignKey(Player)
   is_starter = models.BooleanField()
   batting_position = models.IntegerField()
   defensive_position = models.IntegerField(choices=DEFENSIVE_CHOICES)
+
 
