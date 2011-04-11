@@ -14,5 +14,5 @@ class GameParticipant(models.Model):
   starting_pitcher = models.ForeignKey(Player)
 
   game_number_for_season = models.IntegerField(null=True)
-  team_location_status = models.CharField(choices=HOME_OR_AWAY_CHOICES)
+  team_location_status = models.CharField(choices=HOME_OR_AWAY_CHOICES, max_length=4)
   runs_scored_count = models.IntegerField(null=True)

@@ -1,9 +1,9 @@
 from django.db import models
 
 class Player(models.Model):
-  first_name = models.CharField()
-  last_name  = models.CharField()
-  retrosheet_id = models.CharField()
+  first_name = models.CharField(max_length=255)
+  last_name  = models.CharField(max_length=255)
+  retrosheet_id = models.CharField(max_length=255)
   debut_date = models.DateField(null=True)
   #debut_year = models.IntegerField()
   #debut_month = models.IntegerField()
