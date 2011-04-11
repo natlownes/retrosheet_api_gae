@@ -1,6 +1,6 @@
 from django.db import models
-from api.models.lineup import Lineup
-from api.models.player import Player
+from retrosheetapi.models.lineup import Lineup
+from retrosheetapi.models.player import Player
 
 class LineupEntry(models.Model):
   DEFENSIVE_CHOICES = (
