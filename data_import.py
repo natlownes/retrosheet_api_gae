@@ -45,7 +45,6 @@ def lineup_data_for(rs_array):
   data = []
   for i in range(len(lineup_data)):
     lineup_row = lineup_data[i]
-    print lineup_row
     rs_id = lineup_row[0]
     player_name = lineup_row[1] # not that we'll use it
     defensive_position = int(lineup_row[2])
@@ -81,6 +80,7 @@ if import_type == 'player':
 
 if import_type == 'gamelog':
   for row in rows:
+    print ("Processing %(date)s..." % {'date': row[0]})
     game_date = date_or_none(row[0], "%Y%m%d")
     attendance = int(row[17])
     day_of_week = row[2]
@@ -126,3 +126,4 @@ if import_type == 'gamelog':
       player = Player.objects.get(retrosheet_id = d['rs_id'])
       lineup_entry = LineupEntry(player = player, lineup = home_lineup, is_starter = True, batting_position = d['batting_position'], defensive_position = d['defensive_position'])
       lineup_entry.save()
+

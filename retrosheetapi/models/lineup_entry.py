@@ -23,10 +23,8 @@ class LineupEntry(models.Model):
 
   @classmethod
   def defensive_position_to_name(cls, integer):
-    cls.DEFENSIVE_CHOICES[integer - 1][1]
+    return cls.DEFENSIVE_CHOICES[int(integer) - 1][1]
 
   def to_string(self):
-    pass
-    #return "%(batting_position)s.  %(batting_position)s
-
+    return "%(batting_position)02d.  %(player_name)s  %(fielding_name)s" % {'batting_position': self.batting_position, 'player_name': self.player.name(), 'fielding_name': LineupEntry.defensive_position_to_name(self.defensive_position)}
 
