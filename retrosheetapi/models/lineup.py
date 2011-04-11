@@ -7,3 +7,5 @@ class Lineup(models.Model):
   team = models.ForeignKey(Team)
   date = models.DateField(null=True)
 
+  def to_string(self):
+    return "\n".join(map((lambda lineup_entry: lineup_entry.to_string() ), self.lineupentry_set.all()))
